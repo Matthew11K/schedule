@@ -1,0 +1,594 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .main-content {
+        display: flex;
+        height: calc(100vh - 56px);
+    }
+    
+    .sidebar {
+        width: 300px;
+        min-width: 300px;
+    }
+    
+    .calendar-area {
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    @media (max-width: 768px) {
+        .main-content {
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            width: 100%;
+            height: auto;
+            min-height: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Sidebar с фильтрами -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h5 class="mb-0">
+                <i class="bi bi-funnel"></i>
+                Фильтры и настройки
+            </h5>
+        </div>
+        
+        <!-- Быстрые действия -->
+        <div class="sidebar-section">
+            <h6>Быстрые действия</h6>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary btn-sm" id="createEventBtn">
+                    <i class="bi bi-plus-circle"></i>
+                    Создать урок
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm" id="checkConflictsBtn">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Проверить конфликты
+                </button>
+                <button type="button" class="btn btn-outline-info btn-sm" id="optimizeScheduleBtn">
+                    <i class="bi bi-cpu"></i>
+                    Оптимизировать
+                </button>
+            </div>
+        </div>
+        
+        <!-- Фильтр по группам -->
+        <div class="sidebar-section">
+            <h6>Группы</h6>
+            <div id="groupFilters" class="filter-group">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="groupAll" name="group-filter" value="all" checked>
+                    <label for="groupAll">
+                        <span class="class-indicator" style="background-color: #6c757d;"></span>
+                        Все группы
+                    </label>
+                </div>
+                <!-- Группы будут загружены динамически -->
+            </div>
+        </div>
+        
+        <!-- Фильтр по предметам -->
+        <div class="sidebar-section">
+            <h6>Предметы</h6>
+            <div id="subjectFilters" class="filter-group">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="subjectAll" name="subject-filter" value="all" checked>
+                    <label for="subjectAll">
+                        <span class="class-indicator" style="background-color: #6c757d;"></span>
+                        Все предметы
+                    </label>
+                </div>
+                <!-- Предметы будут загружены динамически -->
+            </div>
+        </div>
+        
+        <!-- Фильтр по преподавателям -->
+        <div class="sidebar-section">
+            <h6>Преподаватели</h6>
+            <div id="teacherFilters" class="filter-group">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="teacherAll" name="teacher-filter" value="all" checked>
+                    <label for="teacherAll">
+                        <span class="class-indicator" style="background-color: #6c757d;"></span>
+                        Все преподаватели
+                    </label>
+                </div>
+                <!-- Преподаватели будут загружены динамически -->
+            </div>
+        </div>
+        
+        <!-- Фильтр по кабинетам -->
+        <div class="sidebar-section">
+            <h6>Кабинеты</h6>
+            <div id="roomFilters" class="filter-group">
+                <div class="filter-checkbox">
+                    <input type="checkbox" id="roomAll" name="room-filter" value="all" checked>
+                    <label for="roomAll">
+                        <span class="class-indicator" style="background-color: #6c757d;"></span>
+                        Все кабинеты
+                    </label>
+                </div>
+                <!-- Кабинеты будут загружены динамически -->
+            </div>
+        </div>
+        
+        <!-- Настройки отображения -->
+        <div class="sidebar-section">
+            <h6>Отображение</h6>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="showWeekends">
+                <label class="form-check-label" for="showWeekends">
+                    Показывать выходные
+                </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="showConflicts" checked>
+                <label class="form-check-label" for="showConflicts">
+                    Выделять конфликты
+                </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="showEmptySlots">
+                <label class="form-check-label" for="showEmptySlots">
+                    Показывать пустые слоты
+                </label>
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="sidebar-section">
+            <h6>Статистика</h6>
+            <div class="card">
+                <div class="card-body p-2">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="text-primary">
+                                <i class="bi bi-calendar-event"></i>
+                                <div id="totalEvents">0</div>
+                                <small>Уроков</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <div id="totalConflicts">0</div>
+                                <small>Конфликтов</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область календаря -->
+    <div class="calendar-area">
+        <!-- Панель инструментов -->
+        <div class="toolbar-section p-3 bg-light border-bottom">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-toolbar btn-view-change active" data-view="timeGridWeek">
+                        <i class="bi bi-calendar-week"></i>
+                        Неделя
+                    </button>
+                    <button type="button" class="btn btn-toolbar btn-view-change" data-view="timeGridDay">
+                        <i class="bi bi-calendar-day"></i>
+                        День
+                    </button>
+                    <button type="button" class="btn btn-toolbar btn-view-change" data-view="dayGridMonth">
+                        <i class="bi bi-calendar-month"></i>
+                        Месяц
+                    </button>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="refreshCalendar">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Обновить
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm" id="exportSchedule">
+                        <i class="bi bi-download"></i>
+                        Экспорт
+                    </button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear"></i>
+                            Настройки
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="printSchedule">
+                                <i class="bi bi-printer"></i>
+                                Печать
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" id="scheduleSettings">
+                                <i class="bi bi-sliders"></i>
+                                Настройки вида
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="importSchedule">
+                                <i class="bi bi-upload"></i>
+                                Импорт данных
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Календарь -->
+        <div class="calendar-container">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для создания/редактирования события -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalTitle">
+                    <i class="bi bi-calendar-plus"></i>
+                    Создание урока
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="eventModalBody">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно конфликтов -->
+<div class="modal fade" id="conflictsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Конфликты в расписании
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="conflictsModalBody">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-warning" id="resolveConflictsBtn">
+                    <i class="bi bi-magic"></i>
+                    Автоматически разрешить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Инициализация страницы планирования
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboard();
+});
+
+async function initializeDashboard() {
+    try {
+        // НЕ включаем индикатор загрузки - календарь уже загружается
+        // showLoading(true);
+        
+        // Загружаем данные для фильтров
+        await loadFilterData();
+        
+        // Инициализируем обработчики событий
+        initializeDashboardHandlers();
+        
+        showToast('Панель управления загружена', 'success');
+        
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showToast('Ошибка загрузки панели управления', 'error');
+    } finally {
+        // Убеждаемся что индикатор отключен
+        showLoading(false);
+    }
+}
+
+async function loadFilterData() {
+    try {
+        // Загружаем группы
+        const groups = await api.getGroups();
+        populateGroupFilters(groups);
+        
+        // Загружаем предметы
+        const subjects = await api.getSubjects();
+        populateSubjectFilters(subjects);
+        
+        // Загружаем преподавателей
+        const teachers = await api.getTeachers();
+        populateTeacherFilters(teachers);
+        
+        // Загружаем кабинеты
+        const rooms = await api.getRooms();
+        populateRoomFilters(rooms);
+        
+    } catch (error) {
+        console.error('Error loading filter data:', error);
+        throw error;
+    }
+}
+
+function populateGroupFilters(groups) {
+    const container = document.getElementById('groupFilters');
+    const allCheckbox = container.querySelector('#groupAll');
+    
+    groups.forEach((group, index) => {
+        const color = getGroupColor(index);
+        const html = `
+            <div class="filter-checkbox">
+                <input type="checkbox" id="group-${group.id}" name="group-filter" value="${group.id}">
+                <label for="group-${group.id}">
+                    <span class="class-indicator" style="background-color: ${color};"></span>
+                    ${group.name}
+                </label>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function populateSubjectFilters(subjects) {
+    const container = document.getElementById('subjectFilters');
+    
+    subjects.forEach((subject, index) => {
+        const color = getSubjectColorCode(subject.name);
+        const html = `
+            <div class="filter-checkbox">
+                <input type="checkbox" id="subject-${subject.id}" name="subject-filter" value="${subject.id}">
+                <label for="subject-${subject.id}">
+                    <span class="class-indicator" style="background-color: ${color};"></span>
+                    ${subject.name}
+                </label>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function populateTeacherFilters(teachers) {
+    const container = document.getElementById('teacherFilters');
+    
+    teachers.forEach((teacher, index) => {
+        const color = getTeacherColor(index);
+        const fullName = `${teacher.user?.first_name || ''} ${teacher.user?.last_name || ''}`.trim() || 'Без имени';
+        const html = `
+            <div class="filter-checkbox">
+                <input type="checkbox" id="teacher-${teacher.id}" name="teacher-filter" value="${teacher.id}">
+                <label for="teacher-${teacher.id}">
+                    <span class="class-indicator" style="background-color: ${color};"></span>
+                    ${fullName}
+                </label>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function populateRoomFilters(rooms) {
+    const container = document.getElementById('roomFilters');
+    
+    rooms.forEach((room, index) => {
+        const color = getRoomColor(index);
+        const html = `
+            <div class="filter-checkbox">
+                <input type="checkbox" id="room-${room.id}" name="room-filter" value="${room.id}">
+                <label for="room-${room.id}">
+                    <span class="class-indicator" style="background-color: ${color};"></span>
+                    ${room.name}
+                </label>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function getGroupColor(index) {
+    const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
+    return colors[index % colors.length];
+}
+
+function getSubjectColorCode(subjectName) {
+    const colors = {
+        'Математика': '#1565c0',
+        'Русский язык': '#7b1fa2',
+        'Английский язык': '#2e7d32',
+        'Физика': '#ef6c00',
+        'Химия': '#ef6c00',
+        'Биология': '#ef6c00',
+        'История': '#c2185b',
+        'География': '#00695c',
+        'Изобразительное искусство': '#827717',
+        'Физическая культура': '#c62828'
+    };
+    return colors[subjectName] || '#6c757d';
+}
+
+function getTeacherColor(index) {
+    const colors = ['#495057', '#6c757d', '#adb5bd', '#343a40', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+    return colors[index % colors.length];
+}
+
+function getRoomColor(index) {
+    const colors = ['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da', '#adb5bd', '#6c757d', '#495057', '#343a40'];
+    return colors[index % colors.length];
+}
+
+function initializeDashboardHandlers() {
+    // Обработчик создания события
+    document.getElementById('createEventBtn').addEventListener('click', function() {
+        openEventModal();
+    });
+    
+    // Обработчик проверки конфликтов
+    document.getElementById('checkConflictsBtn').addEventListener('click', function() {
+        checkConflicts();
+    });
+    
+    // Обработчик оптимизации
+    document.getElementById('optimizeScheduleBtn').addEventListener('click', function() {
+        optimizeSchedule();
+    });
+    
+    // Обработчик обновления календаря
+    document.getElementById('refreshCalendar').addEventListener('click', function() {
+        if (window.scheduleCalendar) {
+            window.scheduleCalendar.refresh();
+            showToast('Календарь обновлен', 'success');
+        }
+    });
+    
+    // Обработчики фильтров "Все"
+    ['group', 'subject', 'teacher', 'room'].forEach(filterType => {
+        const allCheckbox = document.getElementById(`${filterType}All`);
+        if (allCheckbox) {
+            allCheckbox.addEventListener('change', function() {
+                toggleAllFilters(filterType, this.checked);
+            });
+        }
+    });
+}
+
+function toggleAllFilters(filterType, checked) {
+    const checkboxes = document.querySelectorAll(`input[name="${filterType}-filter"]:not([value="all"])`);
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+    });
+    
+    if (window.scheduleCalendar) {
+        window.scheduleCalendar.refresh();
+    }
+}
+
+function openEventModal(event = null) {
+    const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+    const title = document.getElementById('eventModalTitle');
+    const body = document.getElementById('eventModalBody');
+    
+    if (event) {
+        title.innerHTML = '<i class="bi bi-calendar-event"></i> Редактирование урока';
+    } else {
+        title.innerHTML = '<i class="bi bi-calendar-plus"></i> Создание урока';
+    }
+    
+    // Загружаем содержимое модального окна
+    body.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+    
+    fetch(`/modals/event/?event_id=${event ? event.id : ''}`)
+        .then(response => response.text())
+        .then(html => {
+            body.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading modal:', error);
+            body.innerHTML = '<div class="alert alert-danger">Ошибка загрузки формы</div>';
+        });
+    
+    modal.show();
+}
+
+async function checkConflicts() {
+    try {
+        showLoading(true);
+        
+        // Получаем текущий план расписания (можно сделать выбор плана)
+        const planId = 1; // Временно используем первый план
+        
+        const result = await api.checkConflicts(planId);
+        
+        // Показываем результаты в модальном окне
+        showConflictsModal(result.conflicts);
+        
+        // Обновляем счетчик конфликтов
+        document.getElementById('totalConflicts').textContent = result.conflicts_found || 0;
+        
+        if (result.conflicts_found > 0) {
+            showToast(`Найдено конфликтов: ${result.conflicts_found}`, 'warning');
+        } else {
+            showToast('Конфликтов не найдено', 'success');
+        }
+        
+    } catch (error) {
+        console.error('Error checking conflicts:', error);
+        showToast('Ошибка проверки конфликтов', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showConflictsModal(conflicts) {
+    const modal = new bootstrap.Modal(document.getElementById('conflictsModal'));
+    const body = document.getElementById('conflictsModalBody');
+    
+    if (!conflicts || conflicts.length === 0) {
+        body.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">Конфликтов не найдено</h4>
+                <p class="text-muted">Расписание не содержит конфликтов</p>
+            </div>
+        `;
+    } else {
+        let html = '<div class="list-group">';
+        conflicts.forEach(conflict => {
+            html += `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${conflict.conflict_type?.name || 'Неизвестный конфликт'}</h6>
+                        <small class="text-muted">${formatDateTime(conflict.created_at)}</small>
+                    </div>
+                    <p class="mb-1">${conflict.description}</p>
+                    <small class="text-muted">Уровень: ${conflict.severity || 'Средний'}</small>
+                </div>
+            `;
+        });
+        html += '</div>';
+        body.innerHTML = html;
+    }
+    
+    modal.show();
+}
+
+async function optimizeSchedule() {
+    try {
+        showLoading(true);
+        showToast('Функция оптимизации в разработке', 'info');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Обновление статистики
+function updateStatistics() {
+    // Эта функция будет вызываться при изменении календаря
+    const events = window.scheduleCalendar?.events || [];
+    document.getElementById('totalEvents').textContent = events.length;
+}
+
+// Экспорт функций для использования в календаре
+window.openEventModal = openEventModal;
+window.updateStatistics = updateStatistics;
+</script>
+{% endblock %} 

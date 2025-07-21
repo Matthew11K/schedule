@@ -1,0 +1,512 @@
+/* Основные стили для системы управления расписанием */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    
+    --sidebar-width: 300px;
+    --calendar-height: calc(100vh - 120px);
+}
+
+/* Body and layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f6fa;
+}
+
+/* Loading overlay - УДАЛЕН для предотвращения блокировки интерфейса */
+/* .loading-overlay стили больше не нужны */
+
+/* Sidebar styles */
+.sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    border-right: 1px solid #e9ecef;
+    min-height: var(--calendar-height);
+    padding: 1rem;
+}
+
+.sidebar-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-section {
+    margin-bottom: 2rem;
+}
+
+.sidebar-section h6 {
+    color: var(--dark-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+/* Filter controls */
+.filter-group {
+    margin-bottom: 1rem;
+}
+
+.filter-checkbox {
+    margin-bottom: 0.5rem;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.filter-checkbox label {
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* Class/Group color indicators */
+.class-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+/* Calendar container */
+.calendar-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin: 1rem;
+    min-height: var(--calendar-height);
+}
+
+/* FullCalendar customizations */
+.fc {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fc-header-toolbar {
+    background: var(--light-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem !important;
+}
+
+.fc-button-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.fc-button-primary:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0a58ca !important;
+}
+
+.fc-timegrid-slot {
+    height: 60px !important;
+}
+
+.fc-timegrid-slot-label {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+}
+
+/* Custom event styles */
+.fc-event {
+    border-radius: 4px !important;
+    border: none !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fc-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fc-event-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.fc-event-time {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
+
+/* Subject-specific colors */
+.event-math { background-color: #e3f2fd !important; color: #1565c0 !important; }
+.event-russian { background-color: #f3e5f5 !important; color: #7b1fa2 !important; }
+.event-english { background-color: #e8f5e8 !important; color: #2e7d32 !important; }
+.event-science { background-color: #fff3e0 !important; color: #ef6c00 !important; }
+.event-history { background-color: #fce4ec !important; color: #c2185b !important; }
+.event-geography { background-color: #e0f2f1 !important; color: #00695c !important; }
+.event-art { background-color: #f9fbe7 !important; color: #827717 !important; }
+.event-pe { background-color: #ffebee !important; color: #c62828 !important; }
+
+/* Time slot hover effects */
+.fc-timegrid-slot:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Day header styling */
+.fc-col-header-cell {
+    background: var(--light-color);
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Today highlight */
+.fc-day-today {
+    background-color: rgba(13, 110, 253, 0.05) !important;
+}
+
+/* Weekend styling */
+.fc-day-sat,
+.fc-day-sun {
+    background-color: rgba(108, 117, 125, 0.05);
+}
+
+/* Toolbar buttons */
+.toolbar-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-toolbar {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.btn-toolbar:hover {
+    background: var(--light-color);
+    border-color: var(--primary-color);
+}
+
+.btn-toolbar.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Modal customizations */
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), #0b5ed7);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 2rem;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 500;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select {
+    border-radius: 6px;
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: var(--light-color);
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Drag and drop styling */
+.draggable-item {
+    cursor: move;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border: 1px solid #e9ecef;
+}
+
+.draggable-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.draggable-item.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.drop-zone {
+    min-height: 40px;
+    border: 2px dashed #ced4da;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.drop-zone.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.05);
+    color: var(--primary-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 56px;
+        left: -var(--sidebar-width);
+        width: var(--sidebar-width);
+        height: calc(100vh - 56px);
+        z-index: 1050;
+        transition: left 0.3s ease;
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .calendar-container {
+        margin: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .fc-header-toolbar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .fc-timegrid-slot {
+        height: 40px !important;
+    }
+}
+
+/* Utility classes */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.shadow-sm-hover:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* Conflict indicators */
+.conflict-indicator {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger-color);
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+.event-conflict {
+    border: 2px solid var(--danger-color) !important;
+}
+
+/* Success/Error states */
+.fc-event-success {
+    border-left: 4px solid var(--success-color) !important;
+}
+
+.fc-event-warning {
+    border-left: 4px solid var(--warning-color) !important;
+}
+
+.fc-event-danger {
+    border-left: 4px solid var(--danger-color) !important;
+}
+
+/* Fallback calendar styles */
+.fallback-calendar {
+    min-height: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.fallback-calendar .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.fallback-calendar .events-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.fallback-calendar .card {
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.2s ease;
+}
+
+.fallback-calendar .card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+.fallback-calendar .alert {
+    margin-bottom: 20px;
+}
+
+/* ПРИНУДИТЕЛЬНО ОТКЛЮЧАЕМ ВСЕ ИНДИКАТОРЫ ЗАГРУЗКИ */
+
+/* Главный overlay загрузки */
+#loadingOverlay {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Принудительное скрытие всех loading элементов - БОЛЬШЕ НЕ НУЖНО */
+/* Индикатор загрузки полностью удален */
+
+/* Отключаем встроенный индикатор загрузки FullCalendar */
+.fc-event-loading,
+.fc-loading {
+    display: none !important;
+}
+
+/* Отключаем все возможные индикаторы загрузки в календаре */
+.fc .fc-scroller-liquid-absolute .fc-scroller-canvas .fc-view-harness .fc-view .fc-popover,
+.fc .fc-loading {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
+}
+
+/* Убираем затемнение календаря при загрузке */
+.fc.fc-theme-standard {
+    opacity: 1 !important;
+}
+
+/* Скрываем любые spinner'ы в календаре */
+.fc .spinner,
+.fc .loading,
+.fc [class*="loading"],
+.fc [class*="spinner"] {
+    display: none !important;
+}
+
+/* Скрываем все возможные spinner'ы и loading элементы */
+.spinner-border,
+.spinner-grow,
+[class*="spinner"],
+[class*="loading"] {
+    display: none !important;
+}
+
+/* Убираем блокировку интерфейса */
+.modal-backdrop {
+    display: none !important;
+}
+
+/* Скрываем элементы по специфическим ID и классам */
+[id*="loading"],
+[class*="loading"],
+[id*="spinner"],
+[class*="spinner"] {
+    display: none !important;
+}
+
+/* Дополнительные классы загрузки */
+.d-none {
+    display: none !important;
+}
+
+/* Убираем z-index у overlay элементов */
+[style*="z-index"] {
+    z-index: -1 !important;
+}

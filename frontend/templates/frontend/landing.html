@@ -1,0 +1,215 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <div class="bg-primary text-white py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Система управления школьным расписанием
+                    </h1>
+                    <p class="lead mb-4">
+                        Современное решение для планирования и управления расписанием 
+                        образовательных учреждений с интеллектуальным обнаружением конфликтов
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'frontend:dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                            Перейти к планированию
+                        </a>
+                        <a href="{% url 'frontend:schedule' %}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-calendar-week"></i>
+                            Открыть календарь
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <i class="bi bi-calendar3 text-white" style="font-size: 12rem; opacity: 0.1;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="py-5 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="fw-bold">Основные возможности</h2>
+                    <p class="text-muted">Полный набор инструментов для эффективного управления расписанием</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-calendar-plus text-primary mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Планирование расписания</h5>
+                            <p class="card-text">
+                                Интуитивное создание и редактирование расписания с поддержкой 
+                                drag-and-drop и автоматической проверкой конфликтов
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Обнаружение конфликтов</h5>
+                            <p class="card-text">
+                                Автоматическое выявление пересечений в расписании преподавателей, 
+                                кабинетов и групп с предложениями по устранению
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people text-success mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Управление ресурсами</h5>
+                            <p class="card-text">
+                                Комплексное управление преподавателями, группами, кабинетами 
+                                и учебными программами
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-graph-up text-info mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Аналитика и отчеты</h5>
+                            <p class="card-text">
+                                Детальная статистика по загруженности преподавателей, 
+                                использованию кабинетов и эффективности расписания
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-phone text-primary mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Мобильная версия</h5>
+                            <p class="card-text">
+                                Адаптивный интерфейс для работы на любых устройствах - 
+                                компьютерах, планшетах и смартфонах
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="bi bi-cloud-arrow-up text-secondary mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Экспорт и интеграция</h5>
+                            <p class="card-text">
+                                Экспорт расписания в различные форматы и интеграция 
+                                с другими системами через REST API
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Section -->
+    <div class="py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-event text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="fw-bold" id="statsEvents">{{ stats.events|default:"..." }}</h3>
+                    <p class="text-muted">Уроков в системе</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="fw-bold" id="statsTeachers">{{ stats.teachers|default:"..." }}</h3>
+                    <p class="text-muted">Преподавателей</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <i class="bi bi-house text-info" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="fw-bold" id="statsRooms">{{ stats.rooms|default:"..." }}</h3>
+                    <p class="text-muted">Кабинетов</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <i class="bi bi-building text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="fw-bold" id="statsSubsidiaries">{{ stats.subsidiaries|default:"..." }}</h3>
+                    <p class="text-muted">Филиалов</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Готовы начать работу?</h2>
+            <p class="lead mb-4">
+                Войдите в систему для доступа к функциям планирования и управления расписанием
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'admin:login' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Войти в систему
+                </a>
+                <a href="/api/docs/" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-code-slash"></i>
+                    API Документация
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadLandingStatistics();
+});
+
+async function loadLandingStatistics() {
+    try {
+        // Загружаем статистику если пользователь авторизован
+        if (window.location.pathname === '/') {
+            const [events, teachers, rooms, subsidiaries] = await Promise.all([
+                api.getScheduledEvents().catch(() => []),
+                api.getTeachers().catch(() => []),
+                api.getRooms().catch(() => []),
+                api.getSubsidiaries ? api.getSubsidiaries().catch(() => []) : Promise.resolve([])
+            ]);
+            
+            document.getElementById('statsEvents').textContent = events.length;
+            document.getElementById('statsTeachers').textContent = teachers.length;
+            document.getElementById('statsRooms').textContent = rooms.length;
+            document.getElementById('statsSubsidiaries').textContent = subsidiaries.length;
+        }
+    } catch (error) {
+        console.log('Statistics not loaded (user not authenticated)');
+    }
+}
+</script>
+{% endblock %} 

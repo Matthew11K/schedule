@@ -1,0 +1,189 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-1">
+                <i class="bi bi-graph-up text-primary"></i>
+                Отчеты и аналитика
+            </h2>
+            <p class="text-muted mb-0">Статистика и анализ эффективности расписания</p>
+        </div>
+    </div>
+    
+    <!-- Быстрая статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-event" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h3 class="mb-0" id="totalEvents">0</h3>
+                            <small>Всего уроков</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-people" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h3 class="mb-0" id="totalTeachers">0</h3>
+                            <small>Преподавателей</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-house" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h3 class="mb-0" id="totalRooms">0</h3>
+                            <small>Кабинетов</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <div class="ms-3">
+                            <h3 class="mb-0" id="totalConflicts">0</h3>
+                            <small>Конфликтов</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Заглушки для будущих отчетов -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart"></i>
+                        Загруженность преподавателей
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-bar-chart text-muted" style="font-size: 4rem;"></i>
+                        <h6 class="mt-3 text-muted">Отчет в разработке</h6>
+                        <p class="text-muted">
+                            Здесь будет отображаться статистика по загруженности преподавателей
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart"></i>
+                        Использование кабинетов
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-pie-chart text-muted" style="font-size: 4rem;"></i>
+                        <h6 class="mt-3 text-muted">Отчет в разработке</h6>
+                        <p class="text-muted">
+                            Здесь будет отображаться статистика по использованию кабинетов
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i>
+                        Эффективность расписания
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-graph-up text-muted" style="font-size: 4rem;"></i>
+                        <h6 class="mt-3 text-muted">Отчет в разработке</h6>
+                        <p class="text-muted">
+                            Здесь будет отображаться анализ эффективности составленного расписания
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-range"></i>
+                        Конфликты по периодам
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-range text-muted" style="font-size: 4rem;"></i>
+                        <h6 class="mt-3 text-muted">Отчет в разработке</h6>
+                        <p class="text-muted">
+                            Здесь будет отображаться анализ конфликтов по временным периодам
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadReportsData();
+});
+
+async function loadReportsData() {
+    try {
+        showLoading(true);
+        
+        const [events, teachers, rooms, conflicts] = await Promise.all([
+            api.getScheduledEvents(),
+            api.getTeachers(),
+            api.getRooms(),
+            api.getConflicts({ resolved: false })
+        ]);
+        
+        document.getElementById('totalEvents').textContent = events.length;
+        document.getElementById('totalTeachers').textContent = teachers.length;
+        document.getElementById('totalRooms').textContent = rooms.length;
+        document.getElementById('totalConflicts').textContent = conflicts.length;
+        
+    } catch (error) {
+        console.error('Error loading reports data:', error);
+        showToast('Ошибка загрузки данных отчетов', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+</script>
+{% endblock %} 

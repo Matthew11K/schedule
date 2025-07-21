@@ -1,0 +1,189 @@
+<form id="eventForm" method="post">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventTitle" class="form-label">Название урока *</label>
+                <input type="text" class="form-control" id="eventTitle" name="title" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventSubject" class="form-label">Предмет *</label>
+                <select class="form-select" id="eventSubject" name="subject" required>
+                    <option value="">Выберите предмет</option>
+                    <!-- Опции будут загружены динамически -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventGroup" class="form-label">Группа *</label>
+                <select class="form-select" id="eventGroup" name="group" required>
+                    <option value="">Выберите группу</option>
+                    <!-- Опции будут загружены динамически -->
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventTeacher" class="form-label">Преподаватель *</label>
+                <select class="form-select" id="eventTeacher" name="teacher" required>
+                    <option value="">Выберите преподавателя</option>
+                    <!-- Опции будут загружены динамически -->
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventRoom" class="form-label">Кабинет *</label>
+                <select class="form-select" id="eventRoom" name="room" required>
+                    <option value="">Выберите кабинет</option>
+                    <!-- Опции будут загружены динамически -->
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventDuration" class="form-label">Длительность (мин) *</label>
+                <input type="number" class="form-control" id="eventDuration" name="duration" value="45" min="15" max="240" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventDate" class="form-label">Дата *</label>
+                <input type="date" class="form-control" id="eventDate" name="date" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="eventTime" class="form-label">Время начала *</label>
+                <input type="time" class="form-control" id="eventTime" name="start_time" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="eventNotes" class="form-label">Примечания</label>
+        <textarea class="form-control" id="eventNotes" name="notes" rows="3" placeholder="Дополнительная информация о уроке"></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle"></i>
+            Сохранить урок
+        </button>
+    </div>
+</form>
+
+<script>
+// Загружаем данные для селектов когда модальное окно открывается
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🧪 Modal DOM loaded, starting data load...');
+    loadEventModalData();
+});
+
+async function loadEventModalData() {
+    try {
+        console.log('🔄 Loading modal data...');
+        
+        // Используем fetch напрямую для тестирования
+        const responses = await Promise.all([
+            fetch('/api/v1/subjects/'),
+            fetch('/api/v1/groups/'), 
+            fetch('/api/v1/teachers/'),
+            fetch('/api/v1/rooms/')
+        ]);
+        
+        console.log('📡 API responses:', responses.map(r => r.status));
+        
+        const [subjects, groups, teachers, rooms] = await Promise.all([
+            responses[0].json(),
+            responses[1].json(),
+            responses[2].json(),
+            responses[3].json()
+        ]);
+
+        console.log('📊 Data loaded:', { 
+            subjects: subjects.results?.length || subjects.length || 0, 
+            groups: groups.results?.length || groups.length || 0,
+            teachers: teachers.results?.length || teachers.length || 0,
+            rooms: rooms.results?.length || rooms.length || 0
+        });
+
+        // Заполняем селекты (обрабатываем как пагинированные, так и обычные ответы)
+        populateSelect('eventSubject', subjects.results || subjects, 'name');
+        populateSelect('eventGroup', groups.results || groups, 'name');
+        populateSelect('eventTeacher', teachers.results || teachers, teacher => `${teacher.user?.first_name || ''} ${teacher.user?.last_name || ''}`.trim() || 'Без имени');
+        populateSelect('eventRoom', rooms.results || rooms, 'name');
+
+        console.log('✅ Modal data loaded successfully');
+
+    } catch (error) {
+        console.error('❌ Error loading modal data:', error);
+        showToast('Ошибка загрузки данных формы', 'error');
+    }
+}
+
+function populateSelect(selectId, items, textProperty) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    // Очищаем все опции кроме первой (placeholder)
+    while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+    }
+
+    // Добавляем новые опции
+    items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        
+        if (typeof textProperty === 'function') {
+            option.textContent = textProperty(item);
+        } else {
+            option.textContent = item[textProperty];
+        }
+        
+        select.appendChild(option);
+    });
+}
+
+// Обработчик отправки формы
+document.getElementById('eventForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        const formData = new FormData(this);
+        const eventData = Object.fromEntries(formData.entries());
+        
+        // Здесь будет API вызов для создания события
+        console.log('Creating event:', eventData);
+        showToast('Урок создан успешно', 'success');
+        
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+        modal.hide();
+        
+        // Обновляем календарь
+        if (window.scheduleCalendar) {
+            window.scheduleCalendar.refresh();
+        }
+        
+    } catch (error) {
+        console.error('Error creating event:', error);
+        showToast('Ошибка создания урока', 'error');
+    }
+});
+</script> 
