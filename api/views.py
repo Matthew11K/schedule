@@ -264,12 +264,30 @@ class ScheduledEventViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(group_course__group=group_id)
         if room_id:
             queryset = queryset.filter(room=room_id)
-        if start_date:
-            queryset = queryset.filter(specific_date__gte=start_date)
-        if end_date:
-            queryset = queryset.filter(specific_date__lte=end_date)
+        # Фильтрация по датам только для single событий
+        # Weekly события отображаются всегда (логика повторения обрабатывается на фронтенде)
+        if start_date or end_date:
+            from django.db.models import Q
+            date_filter = Q()
+            if start_date and end_date:
+                # Включаем single события в диапазоне дат И все weekly события
+                date_filter = Q(
+                    Q(event_type='single', specific_date__range=[start_date, end_date]) |
+                    Q(event_type='weekly')
+                )
+            elif start_date:
+                date_filter = Q(
+                    Q(event_type='single', specific_date__gte=start_date) |
+                    Q(event_type='weekly')
+                )
+            elif end_date:
+                date_filter = Q(
+                    Q(event_type='single', specific_date__lte=end_date) |
+                    Q(event_type='weekly')
+                )
+            queryset = queryset.filter(date_filter)
             
-        return queryset.order_by('specific_date', 'start_time')
+        return queryset.order_by('event_type', 'weekday', 'specific_date', 'start_time')
 
 
 class ScheduledEventCancellationViewSet(viewsets.ModelViewSet):
@@ -457,6 +475,7 @@ def check_conflicts_simple(request):
                     'type': conflict.conflict_type.name,
                     'description': conflict.description,
                     'severity': conflict.conflict_type.severity,
+                    'scheduled_event_id': conflict.scheduled_event_id,
                 } for conflict in conflicts
             ],
             'total_conflicts': len(conflicts)

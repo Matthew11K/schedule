@@ -308,6 +308,7 @@ class ScheduleCalendar {
         this.containerId = containerId;
         this.calendar = null;
         this.events = [];
+        this.conflictedEventIds = []; // Список ID событий с конфликтами
         this.init();
     }
 
@@ -370,61 +371,152 @@ class ScheduleCalendar {
 
     async loadEvents(info, successCallback, failureCallback) {
         try {
+            console.log('🔄 Loading events for period:', info.startStr, 'to', info.endStr);
+            
             const filters = {
                 start_date: info.startStr.split('T')[0],
                 end_date: info.endStr.split('T')[0],
                 ...this.getActiveFilters()
             };
             
-            const events = await api.getScheduledEvents(filters);
+            console.log('📝 Filters:', filters);
+            
+            // Загружаем события и конфликты параллельно
+            const [events, conflicts] = await Promise.all([
+                api.getScheduledEvents(filters),
+                this.loadConflicts()
+            ]);
+            
+            console.log('📊 Raw events from API:', events.length, events);
+            console.log('⚠️ Conflicts loaded:', conflicts.length, 'conflicted event IDs:', this.conflictedEventIds);
+            
             const formattedEvents = this.formatEventsForCalendar(events);
+            console.log('📅 Formatted events for calendar:', formattedEvents.length, formattedEvents);
             
             this.events = events;
             successCallback(formattedEvents);
+            console.log('✅ Events loaded successfully');
             
         } catch (error) {
-            console.error('Error loading events:', error);
+            console.error('❌ Error loading events:', error);
             failureCallback(error);
             showToast('Ошибка загрузки событий', 'error');
         }
     }
 
+    async loadConflicts() {
+        try {
+            const response = await fetch('/api/v1/check_conflicts/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                }
+            });
+            
+            if (!response.ok) {
+                console.warn('⚠️ Failed to load conflicts:', response.status);
+                return [];
+            }
+            
+            const data = await response.json();
+            const conflicts = data.conflicts || [];
+            
+            // Извлекаем ID событий с конфликтами
+            this.conflictedEventIds = conflicts
+                .filter(conflict => conflict.scheduled_event_id)
+                .map(conflict => conflict.scheduled_event_id);
+            
+            console.log('🔍 Extracted conflicted event IDs:', this.conflictedEventIds);
+            return conflicts;
+        } catch (error) {
+            console.error('❌ Error loading conflicts:', error);
+            this.conflictedEventIds = [];
+            return [];
+        }
+    }
+
     formatEventsForCalendar(events) {
-        return events.map(event => {
+        const formattedEvents = [];
+        
+        events.forEach(event => {
             try {
-                // Создаем правильные локальные даты
-                const eventDate = event.specific_date || event.weekday;
-                // Используем формат который FullCalendar понимает как локальное время
-                const startDateTime = `${eventDate}T${event.start_time}`;
-                const endDateTime = `${eventDate}T${event.end_time}`;
-                
-                const subjectColor = this.getSubjectColor(event.group_course?.course?.subject?.name || '');
-                
-                return {
-                    id: event.id,
-                    title: this.getEventTitle(event),
-                    start: startDateTime,
-                    end: endDateTime,
-                    backgroundColor: this.getEventColor(event),
-                    borderColor: this.getEventBorderColor(event),
-                    textColor: this.getEventTextColor(event),
-                    extendedProps: {
-                        originalEvent: event,
-                        groupName: event.group_course?.group?.name || '',
-                        teacherName: event.group_course?.teacher?.user || '',
-                        roomName: event.room?.name || '',
-                        subjectName: event.group_course?.course?.subject?.name || '',
-                        duration: event.duration_minutes,
-                        hasConflicts: false // Это будет заполняться из API конфликтов
-                    },
-                    className: subjectColor
-                };
+                if (event.event_type === 'weekly') {
+                    // Для еженедельных событий создаем повторяющиеся события
+                    const startDate = new Date('2025-07-21'); // Начало недели (понедельник)
+                    const endDate = new Date('2025-12-31');   // Конец учебного года
+                    
+                    let currentWeek = new Date(startDate);
+                    
+                    while (currentWeek <= endDate) {
+                        // Вычисляем дату для нужного дня недели
+                        const eventDate = new Date(currentWeek);
+                        eventDate.setDate(eventDate.getDate() + event.weekday);
+                        
+                        const dateStr = eventDate.toISOString().split('T')[0];
+                        const startDateTime = `${dateStr}T${event.start_time}`;
+                        const endDateTime = `${dateStr}T${event.end_time}`;
+                        
+                        const subjectColor = this.getSubjectColor(event.group_course?.course?.subject?.name || '');
+                        
+                        formattedEvents.push({
+                            id: `${event.id}-${dateStr}`,
+                            title: this.getEventTitle(event),
+                            start: startDateTime,
+                            end: endDateTime,
+                            backgroundColor: this.getEventColor(event),
+                            borderColor: this.getEventBorderColor(event),
+                            textColor: this.getEventTextColor(event),
+                                                    extendedProps: {
+                            originalEvent: event,
+                            groupName: event.group_course?.group?.name || '',
+                            teacherName: event.group_course?.teacher?.user || '',
+                            roomName: event.room?.name || '',
+                            subjectName: event.group_course?.course?.subject?.name || '',
+                            duration: event.duration_minutes,
+                            hasConflicts: this.conflictedEventIds.includes(event.id)
+                        },
+                            className: subjectColor
+                        });
+                        
+                        // Переходим к следующей неделе
+                        currentWeek.setDate(currentWeek.getDate() + 7);
+                    }
+                } else {
+                    // Для разовых событий
+                    const dateStr = event.specific_date;
+                    const startDateTime = `${dateStr}T${event.start_time}`;
+                    const endDateTime = `${dateStr}T${event.end_time}`;
+                    
+                    const subjectColor = this.getSubjectColor(event.group_course?.course?.subject?.name || '');
+                    
+                    formattedEvents.push({
+                        id: event.id,
+                        title: this.getEventTitle(event),
+                        start: startDateTime,
+                        end: endDateTime,
+                        backgroundColor: this.getEventColor(event),
+                        borderColor: this.getEventBorderColor(event),
+                        textColor: this.getEventTextColor(event),
+                        extendedProps: {
+                            originalEvent: event,
+                            groupName: event.group_course?.group?.name || '',
+                            teacherName: event.group_course?.teacher?.user || '',
+                            roomName: event.room?.name || '',
+                            subjectName: event.group_course?.course?.subject?.name || '',
+                            duration: event.duration_minutes,
+                            hasConflicts: this.conflictedEventIds.includes(event.id)
+                        },
+                        className: this.conflictedEventIds.includes(event.id) ? 'conflict-event' : subjectColor
+                    });
+                }
                 
             } catch (error) {
                 console.error('Error formatting event:', event, error);
-                throw error;
             }
         });
+        
+        return formattedEvents;
     }
 
     getEventTitle(event) {
@@ -437,6 +529,10 @@ class ScheduleCalendar {
     }
 
     getEventColor(event) {
+        // Проверяем есть ли конфликты для этого события
+        if (this.conflictedEventIds && this.conflictedEventIds.includes(event.id)) {
+            return '#dc3545'; // Красный цвет для конфликтных событий
+        }
         // Базовые цвета будут применяться через CSS классы
         return null;
     }
@@ -771,6 +867,11 @@ function initializeFilters() {
                 
                 const data = await response.json();
                 console.log('📊 Conflicts data:', data);
+                
+                // Показываем модальное окно с конфликтами
+                if (typeof showConflictsModal === 'function') {
+                    showConflictsModal(data.conflicts || []);
+                }
                 
                 if (data.conflicts && data.conflicts.length > 0) {
                     showToast(`Найдено конфликтов: ${data.conflicts.length}`, 'warning');

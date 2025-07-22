@@ -437,28 +437,6 @@ function getRoomColor(index) {
 }
 
 function initializeDashboardHandlers() {
-    // Обработчик создания события
-    document.getElementById('createEventBtn').addEventListener('click', function() {
-        openEventModal();
-    });
-    
-    // Обработчик проверки конфликтов
-    document.getElementById('checkConflictsBtn').addEventListener('click', function() {
-        checkConflicts();
-    });
-    
-    // Обработчик оптимизации
-    document.getElementById('optimizeScheduleBtn').addEventListener('click', function() {
-        optimizeSchedule();
-    });
-    
-    // Обработчик обновления календаря
-    document.getElementById('refreshCalendar').addEventListener('click', function() {
-        if (window.scheduleCalendar) {
-            window.scheduleCalendar.refresh();
-            showToast('Календарь обновлен', 'success');
-        }
-    });
     
     // Обработчики фильтров "Все"
     ['group', 'subject', 'teacher', 'room'].forEach(filterType => {
@@ -514,7 +492,7 @@ async function checkConflicts() {
         showLoading(true);
         
         // Получаем текущий план расписания (можно сделать выбор плана)
-        const planId = 1; // Временно используем первый план
+        const planId = 4; // ID активного плана расписания
         
         const result = await api.checkConflicts(planId);
         
@@ -553,14 +531,28 @@ function showConflictsModal(conflicts) {
     } else {
         let html = '<div class="list-group">';
         conflicts.forEach(conflict => {
+            // Переводим типы конфликтов на русский
+            const conflictTypeNames = {
+                'teacher_time_conflict': 'Конфликт времени преподавателя',
+                'room_time_conflict': 'Конфликт времени аудитории', 
+                'non_working_time': 'Урок в нерабочее время',
+                'teacher_workload': 'Превышение нагрузки преподавателя',
+                'room_capacity': 'Превышение вместимости аудитории',
+                'teacher_availability': 'Недоступность преподавателя'
+            };
+            
+            const conflictName = conflictTypeNames[conflict.type] || conflict.type || 'Неизвестный конфликт';
+            
             html += `
-                <div class="list-group-item">
+                <div class="list-group-item border-start border-danger border-3">
                     <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">${conflict.conflict_type?.name || 'Неизвестный конфликт'}</h6>
-                        <small class="text-muted">${formatDateTime(conflict.created_at)}</small>
+                        <h6 class="mb-1 text-danger">${conflictName}</h6>
+                        <small class="text-muted">ID: ${conflict.id}</small>
                     </div>
                     <p class="mb-1">${conflict.description}</p>
-                    <small class="text-muted">Уровень: ${conflict.severity || 'Средний'}</small>
+                    <small class="badge bg-${conflict.severity === 'critical' ? 'danger' : conflict.severity === 'medium' ? 'warning' : 'secondary'}">
+                        ${conflict.severity === 'critical' ? 'Критический' : conflict.severity === 'medium' ? 'Средний' : conflict.severity}
+                    </small>
                 </div>
             `;
         });

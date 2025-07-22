@@ -510,3 +510,25 @@ body {
 [style*="z-index"] {
     z-index: -1 !important;
 }
+
+/* Стили для конфликтных событий в календаре */
+.fc-event.conflict-event {
+    background-color: var(--danger-color) !important;
+    border-color: #b02a37 !important;
+    color: white !important;
+}
+
+.fc-event.conflict-event:hover {
+    background-color: #b02a37 !important;
+    border-color: #991f29 !important;
+}
+
+.fc-event.conflict-event .fc-event-title {
+    color: white !important;
+    font-weight: 600;
+}
+
+.fc-event.conflict-event::before {
+    content: "⚠️ ";
+    font-size: 0.8em;
+}

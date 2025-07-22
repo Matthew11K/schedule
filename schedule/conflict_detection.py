@@ -99,7 +99,7 @@ class ConflictDetector:
                     'event_id': event.id,
                     'description': (
                         f'Кабинет {event.room} занят другой группой: '
-                        f'{other_event.group_course} с {other_event.teacher}'
+                        f'{other_event.group_course} с {", ".join([t.full_name for t in other_event.teachers.all()])}'
                     ),
                     'conflicting_event_id': other_event.id,
                     'blocking': True
@@ -271,7 +271,7 @@ class ConflictDetector:
         
         # Подсчитываем активных студентов в группе
         active_students = Student.objects.filter(
-            group=group,
+            groups=group,
             is_active=True
         ).count()
         

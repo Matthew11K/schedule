@@ -95,7 +95,12 @@ class Command(BaseCommand):
             for level in levels:
                 course, created = Course.objects.get_or_create(
                     subject=subject, level=level,
-                    defaults={'name': f'{subject.name} {level.name}', 'hours_per_week': random.randint(2, 4)}
+                    defaults={
+                        'name': f'{subject.name} {level.name}',
+                        'short_name': f'{subject.code} {level.name}',
+                        'duration_hours': random.randint(30, 120),
+                        'lesson_duration_minutes': 45
+                    }
                 )
                 courses.append(course)
         return courses
