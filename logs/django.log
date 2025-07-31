@@ -4287,3 +4287,74 @@ Watching for file changes with StatReloader
 "GET /api/v1/scheduled-events/?start_date=2025-07-21&end_date=2025-07-26 HTTP/1.1" 200 21463
 "GET /api/v1/rooms/ HTTP/1.1" 200 1295
 "POST /api/v1/check_conflicts/ HTTP/1.1" 200 4782
+Watching for file changes with StatReloader
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 4782
+"GET /api/v1/scheduled-events/ HTTP/1.1" 200 21463
+/app/api/views.py changed, reloading.
+Watching for file changes with StatReloader
+/app/api/urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"POST /api/v1/auto_resolve_conflicts/ HTTP/1.1" 200 261
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"GET /api/v1/scheduled-events/ HTTP/1.1" 200 21485
+"GET /dashboard/ HTTP/1.1" 200 30981
+"GET /dashboard/ HTTP/1.1" 200 30981
+"GET /static/frontend/vendor/fullcalendar/index.global.min.css HTTP/1.1" 304 0
+"GET /static/frontend/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1" 304 0
+"GET /static/frontend/vendor/sortable/Sortable.min.js HTTP/1.1" 304 0
+"GET /static/frontend/vendor/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 0
+"GET /static/frontend/vendor/fullcalendar/ru.js HTTP/1.1" 304 0
+"GET /static/frontend/vendor/htmx/htmx.min.js HTTP/1.1" 304 0
+"GET /static/frontend/vendor/bootstrap/js/bootstrap.bundle.min.js HTTP/1.1" 304 0
+"GET /static/frontend/css/style.css HTTP/1.1" 200 12117
+"GET /static/frontend/vendor/axios/axios.min.js HTTP/1.1" 304 0
+"GET /static/frontend/vendor/fullcalendar/index.global.min.js HTTP/1.1" 304 0
+"GET /static/frontend/js/app.js HTTP/1.1" 200 38191
+"GET /static/frontend/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?dd67030699838ea613ee6dbda90effa6 HTTP/1.1" 304 0
+"GET /api/v1/groups/ HTTP/1.1" 200 1005
+"GET /api/v1/subjects/ HTTP/1.1" 200 3109
+"GET /api/v1/teachers/ HTTP/1.1" 200 945
+"GET /api/v1/rooms/ HTTP/1.1" 200 1295
+"GET /api/v1/scheduled-events/?start_date=2025-07-21&end_date=2025-07-26 HTTP/1.1" 200 21485
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"POST /api/v1/auto_resolve_conflicts/ HTTP/1.1" 200 253
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"GET /static/frontend/vendor/bootstrap/js/bootstrap.bundle.min.js.map HTTP/1.1" 304 0
+"GET /static/frontend/vendor/bootstrap/css/bootstrap.min.css.map HTTP/1.1" 304 0
+"GET /static/frontend/vendor/axios/axios.min.js.map HTTP/1.1" 304 0
+"POST /api/v1/auto_resolve_conflicts/ HTTP/1.1" 200 253
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+Watching for file changes with StatReloader
+"POST /api/v1/auto_resolve_conflicts/ HTTP/1.1" 200 260
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"GET /dashboard/ HTTP/1.1" 200 33236
+"GET /static/frontend/css/style.css HTTP/1.1" 200 12373
+"GET /static/frontend/js/app.js HTTP/1.1" 200 35726
+"GET /api/v1/groups/ HTTP/1.1" 200 1005
+"GET /api/v1/subjects/ HTTP/1.1" 200 3109
+"GET /api/v1/teachers/ HTTP/1.1" 200 945
+"GET /api/v1/scheduled-events/?start_date=2025-07-21&end_date=2025-07-26 HTTP/1.1" 200 21485
+"GET /api/v1/rooms/ HTTP/1.1" 200 1295
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3386
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3387
+/app/api/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /dashboard/ HTTP/1.1" 200 33236
+"GET /static/frontend/css/style.css HTTP/1.1" 304 0
+"GET /static/frontend/js/app.js HTTP/1.1" 304 0
+"GET /api/v1/groups/ HTTP/1.1" 200 1005
+"GET /api/v1/subjects/ HTTP/1.1" 200 3109
+"GET /api/v1/teachers/ HTTP/1.1" 200 945
+"GET /api/v1/scheduled-events/?start_date=2025-07-21&end_date=2025-07-26 HTTP/1.1" 200 21485
+"GET /api/v1/rooms/ HTTP/1.1" 200 1295
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3400
+"POST /api/v1/check_conflicts/ HTTP/1.1" 200 3400
+Internal Server Error: /api/v1/auto_resolve_conflicts/
+"POST /api/v1/auto_resolve_conflicts/ HTTP/1.1" 500 71
+/app/api/urls.py changed, reloading.
+Watching for file changes with StatReloader

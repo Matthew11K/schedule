@@ -516,11 +516,14 @@ body {
     background-color: var(--danger-color) !important;
     border-color: #b02a37 !important;
     color: white !important;
+    border-width: 3px !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
 }
 
 .fc-event.conflict-event:hover {
     background-color: #b02a37 !important;
     border-color: #991f29 !important;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4) !important;
 }
 
 .fc-event.conflict-event .fc-event-title {
@@ -531,4 +534,19 @@ body {
 .fc-event.conflict-event::before {
     content: "⚠️ ";
     font-size: 0.8em;
+    margin-right: 2px;
+}
+
+/* Обычные события должны оставаться синими */
+.fc-event:not(.conflict-event) {
+    background-color: #e3f2fd !important;
+    border-color: #1565c0 !important;
+    color: #1565c0 !important;
+}
+
+/* Убираем принудительное применение красного цвета ко всем событиям */
+.fc-event {
+    background-color: inherit !important;
+    border-color: inherit !important;
+    color: inherit !important;
 }

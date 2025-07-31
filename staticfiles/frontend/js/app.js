@@ -886,6 +886,8 @@ function initializeFilters() {
         });
         console.log('✅ Check conflicts button handler added');
     }
+
+
     
     // Кнопка "Создать урок"
     const createLessonBtn = document.getElementById('createLessonBtn');
